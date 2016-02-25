@@ -5,4 +5,4 @@ Regression Forest (DRRF) is implemented. This is based on the work of Fanelli (e
 released in 2011. 
 
 Known issues:
-  - the kinect algorithms use a different scale as the DRRF based head estimator (factor 10e3)
+  - the kinect algorithms use a different scale as the DRRF based head estimator (~factor 10e3)

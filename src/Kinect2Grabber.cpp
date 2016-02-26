@@ -66,6 +66,10 @@ namespace mtec {
 		rotMat(2, 2) = 1 - 2 * (xx + yy);
 	}
 
+	float Kinect2Grabber::scale(float unscaledValue) {
+		return scalingFactor * unscaledValue;
+	}
+
 	Kinect2Grabber::Kinect2Grabber(Streams selStream)
 		: m_sensor(nullptr)
 		, m_mapper(nullptr)
@@ -91,6 +95,7 @@ namespace mtec {
 		, frames(0)
 		, xShift(320)
 		, yShift(240)
+		, scalingFactor(1000.0f)
 	{
 		m_facePointNormalPtr = pcl::PointCloud<pcl::PointNormal>::Ptr(new pcl::PointCloud<pcl::PointNormal>());
 		m_facePointNormalPtr->resize(1);
@@ -129,15 +134,6 @@ namespace mtec {
 		if (FAILED(m_result)){
 			throw std::exception("Exception : IKinectSensor::get_CoordinateMapper()");
 		}
-
-		// Get Intrinsic Values
-		CameraIntrinsics camInts;
-		m_mapper->GetDepthCameraIntrinsics(&camInts);
-		Hfl = camInts.FocalLengthX;
-		Vfl = camInts.FocalLengthY;
-
-		std::cout << "Horizontal Focal Length: " << Hfl << std::endl;
-		std::cout << "Vertical Focal Length: " << Vfl << std::endl;
 		
 		if (m_selectedStream == DepthFace || m_selectedStream == HDFace) {
 
@@ -200,6 +196,15 @@ namespace mtec {
 				exit(-1);
 			}
 			img3D.create(480, 640, CV_32FC3);
+
+			// Get Intrinsic Values
+			CameraIntrinsics camInts;
+			m_mapper->GetDepthCameraIntrinsics(&camInts);
+			Hfl = camInts.FocalLengthX;
+			Vfl = camInts.FocalLengthY;
+
+			std::cout << "Horizontal Focal Length: " << Hfl << std::endl;
+			std::cout << "Vertical Focal Length: " << Vfl << std::endl;
 		}
 
 		// Get Vertex Count
@@ -311,8 +316,6 @@ namespace mtec {
 
 	void Kinect2Grabber::threadFunction() {
 		while (!m_quit){
-			//frames++;
-			//std::cout << frames << std::endl;
 			IMultiSourceFrame* multiSourceFrame = nullptr;
 			IColorFrame* colorFrame = nullptr;
 			IDepthFrame* depthFrame = nullptr;
@@ -333,6 +336,10 @@ namespace mtec {
 						if (FAILED(m_result)){
 							throw std::exception("Exception : IDepthFrame::CopyFrameDataToArray()");
 						}
+						//else {
+						//	frames++;
+						//	std::cout << frames << std::endl;
+						//}
 					}
 				}
 				SafeRelease(depthFrameReference);
@@ -410,16 +417,18 @@ namespace mtec {
 											PointF facePoint[FacePointType::FacePointType_Count];
 											m_result = pFaceResult->GetFacePointsInInfraredSpace(FacePointType::FacePointType_Count, facePoint);
 											if (SUCCEEDED(m_result)){
-												DepthSpacePoint dsp; dsp.X = facePoint[2].X; dsp.Y = facePoint[2].Y;
+												DepthSpacePoint dsp;
+												dsp.X = facePoint[FacePointType_Nose].X;
+												dsp.Y = facePoint[FacePointType_Nose].Y;
 												UINT16 currDepth;
 												int x = static_cast<int>(dsp.X + 0.5);
 												int y = static_cast<int>(dsp.Y + 0.5);
 												currDepth = m_depthBuffer[m_infraredWidth*y + x];
 												CameraSpacePoint csp = { 0 };
 												m_result = m_mapper->MapDepthPointToCameraSpace(dsp, currDepth, &csp);
-												m_facePointNormalPtr->at(0).x = csp.X;
-												m_facePointNormalPtr->at(0).y = csp.Y;
-												m_facePointNormalPtr->at(0).z = csp.Z;
+												m_facePointNormalPtr->at(0).x = scale(csp.X);
+												m_facePointNormalPtr->at(0).y = scale(csp.Y);
+												m_facePointNormalPtr->at(0).z = scale(csp.Z);
 											}
 
 											// Face Rotation
@@ -520,9 +529,9 @@ namespace mtec {
 												csp.X = facePoints[HighDetailFacePoints::HighDetailFacePoints_NoseTip].X;
 												csp.Y = facePoints[HighDetailFacePoints::HighDetailFacePoints_NoseTip].Y;
 												csp.Z = facePoints[HighDetailFacePoints::HighDetailFacePoints_NoseTip].Z;
-												m_HDFacePointNormalPtr->at(0).x = csp.X;
-												m_HDFacePointNormalPtr->at(0).y = csp.Y;
-												m_HDFacePointNormalPtr->at(0).z = csp.Z;
+												m_HDFacePointNormalPtr->at(0).x = scale(csp.X);
+												m_HDFacePointNormalPtr->at(0).y = scale(csp.Y);
+												m_HDFacePointNormalPtr->at(0).z = scale(csp.Z);
 												//Face Rotation
 												Vector4 faceRotation;
 												m_result = m_pFaceAlignment[count]->get_FaceOrientation(&faceRotation);
@@ -607,9 +616,7 @@ namespace mtec {
 					m_facePointNormalPtr->at(0).z = T_est(2, 3);
 					// get normal (-z direction)
 					Eigen::Vector4f faceDir_est(0.0, 0.0, -100.0, 1.0);
-					//Eigen::Vector4f faceOrig_est(0.0, 0.0, 0.0, 1.0);
 					faceDir_est = T_est * faceDir_est;
-					//faceOrig_est = T_est * faceOrig_est;
 					m_facePointNormalPtr->at(0).normal_x = faceDir_est(0, 0);
 					m_facePointNormalPtr->at(0).normal_y = faceDir_est(1, 0);
 					m_facePointNormalPtr->at(0).normal_z = faceDir_est(2, 0);
@@ -630,7 +637,6 @@ namespace mtec {
 
 			if (m_selectedStream == ForestFace) {
 				m_signalPointXYZFaceNormal->operator()(convertDepthToPointXYZ(img3D), m_facePointNormalPtr, m_faceFound);
-				//m_signalPointXYZFaceNormal->operator()(convertDepthToPointXYZ(&m_depthBuffer[0]), m_facePointNormalPtr, m_faceFound);
 			}
 
 			if (m_selectedStream == DepthFace) {
@@ -665,11 +671,11 @@ namespace mtec {
 				UINT16 depth = depthBuffer[y * m_depthWidth + x];
 
 				// Coordinate Mapping Depth to Camera Space, and Setting PointCloud XYZ
-				CameraSpacePoint cameraSpacePoint = { 0.0f, 0.0f, 0.0f };
-				m_mapper->MapDepthPointToCameraSpace(depthSpacePoint, depth, &cameraSpacePoint);
-				point.x = cameraSpacePoint.X;
-				point.y = cameraSpacePoint.Y;
-				point.z = cameraSpacePoint.Z;
+				CameraSpacePoint csp = { 0.0f, 0.0f, 0.0f };
+				m_mapper->MapDepthPointToCameraSpace(depthSpacePoint, depth, &csp);
+				point.x = scale(csp.X);
+				point.y = scale(csp.Y);
+				point.z = scale(csp.Z);
 
 				*pt = point;
 			}

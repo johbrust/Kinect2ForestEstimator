@@ -41,6 +41,7 @@ namespace mtec
 		virtual bool isRunning() const;
 		virtual std::string getName() const;
 		virtual float getFramesPerSecond() const;
+		virtual float scale(float);
 
 		typedef void (slotKinect2PointXYZ)(const boost::shared_ptr<const pcl::PointCloud<pcl::PointXYZ>>&);
 		typedef void (slotKinect2PointXYZFaceNormal)(const boost::shared_ptr<const pcl::PointCloud<pcl::PointXYZ>>&, const pcl::PointCloud < pcl::PointNormal >::Ptr&, const bool);
@@ -110,6 +111,8 @@ namespace mtec
 		int m_infraredWidth;
 		int m_infraredHeight;
 		std::vector<UINT16> m_infraredBuffer;
+
+		float scalingFactor;
 	};
 
 

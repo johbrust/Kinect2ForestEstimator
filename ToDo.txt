@@ -1,0 +1,7 @@
+- find and fix the inversion problem of the point clouds
+- think of trajectories:
+	- move the robot to (few) defined points and record the depthimages as it moves
+	- preferred: move the robot to many different points and record frames (~50) at every point while the robot stands still
+	- trajectories in the form of different poses defined by homogeneous transformations
+	- additionally: use the cambar for accurate aquisition of the head poses
+- when looking into the statistics of the poses (noise added by the kinect), split the pose into its components and evaluate the different directions

@@ -51,7 +51,7 @@ namespace mtec
 		boost::signals2::signal<slotKinect2PointXYZFaceNormal>* m_signalPointXYZFaceNormal;
 
 		pcl::PointCloud<pcl::PointXYZ>::Ptr convertDepthToPointXYZ(UINT16* depthBuffer);
-		pcl::PointCloud<pcl::PointXYZ>::Ptr convertDepthToPointXYZ(cv::Mat img3D);
+		pcl::PointCloud<pcl::PointXYZ>::Ptr convertDepthToPointXYZ(cv::Mat & img3D);
 		//pcl::PointNormal getFacePointNormal();
 
 		boost::thread m_thread;

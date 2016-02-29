@@ -437,9 +437,9 @@ namespace mtec {
 											if (SUCCEEDED(m_result)){
 												Eigen::Matrix3d rotMat;
 												ExtractFaceRotationAsMatrix(&faceRotation, rotMat);
-												m_facePointNormalPtr->at(0).normal_x = rotMat(0, 2);
-												m_facePointNormalPtr->at(0).normal_y = rotMat(1, 2);
-												m_facePointNormalPtr->at(0).normal_z = rotMat(2, 2);
+												m_facePointNormalPtr->at(0).normal_x = scale(rotMat(0, 2));
+												m_facePointNormalPtr->at(0).normal_y = scale(rotMat(1, 2));
+												m_facePointNormalPtr->at(0).normal_z = scale(rotMat(2, 2));
 												m_faceFound = true;
 											}
 										}
@@ -539,9 +539,9 @@ namespace mtec {
 													std::cout << "             Got Face Orientation for Face " << count << std::endl;
 													Eigen::Matrix3d rotMat;
 													ExtractFaceRotationAsMatrix(&faceRotation, rotMat);
-													m_HDFacePointNormalPtr->at(0).normal_x = rotMat(0, 2);
-													m_HDFacePointNormalPtr->at(0).normal_y = rotMat(1, 2);
-													m_HDFacePointNormalPtr->at(0).normal_z = rotMat(2, 2);
+													m_HDFacePointNormalPtr->at(0).normal_x = scale(rotMat(0, 2));
+													m_HDFacePointNormalPtr->at(0).normal_y = scale(rotMat(1, 2));
+													m_HDFacePointNormalPtr->at(0).normal_z = scale(rotMat(2, 2));
 													m_HDFaceFound = true;
 												}
 											}
@@ -636,7 +636,8 @@ namespace mtec {
 			}
 
 			if (m_selectedStream == ForestFace) {
-				m_signalPointXYZFaceNormal->operator()(convertDepthToPointXYZ(img3D), m_facePointNormalPtr, m_faceFound);
+				//m_signalPointXYZFaceNormal->operator()(convertDepthToPointXYZ(img3D), m_facePointNormalPtr, m_faceFound);
+				m_signalPointXYZFaceNormal->operator()(convertDepthToPointXYZ(&m_depthBuffer[0]), m_facePointNormalPtr, m_faceFound);
 			}
 
 			if (m_selectedStream == DepthFace) {
@@ -684,7 +685,7 @@ namespace mtec {
 		return cloud;
 	}
 
-	pcl::PointCloud<pcl::PointXYZ>::Ptr Kinect2Grabber::convertDepthToPointXYZ(cv::Mat img3D)
+	pcl::PointCloud<pcl::PointXYZ>::Ptr Kinect2Grabber::convertDepthToPointXYZ(cv::Mat & img3D)
 	{
 		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>());
 

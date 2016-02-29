@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
 	visualizer->setBackgroundColor(0, 0, 0);
 	visualizer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, cloudName);
 	visualizer->initCameraParameters();
-	visualizer->setCameraPosition(0, 0, 0, 0, -1, 0); //setCameraPosition(0, 0, 0, 0, -1, 0);
+	visualizer->setCameraPosition(0, 0, 0, 0, 0, 0); //setCameraPosition(0, 0, 0, 0, -1, 0);
 	visualizer->addCoordinateSystem(100.0); //addCoordinateSystem(0.1)
 
 	//visualizer->registerKeyboardCallback(&Receiver::keyboardEvent, *this);
@@ -156,6 +156,9 @@ int main(int argc, char* argv[])
 			mutexVis.unlock();
 		}
 	}
+
+	//Eigen::Affine3f viewerPose = visualizer->getViewerPose();
+	//std::cout << viewerPose.matrix() << std::endl;
 
 	// Stop Retrieve Data
 	grabber->stop();

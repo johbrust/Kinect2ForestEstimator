@@ -575,8 +575,8 @@ namespace mtec {
 								/*img3Di[x][0] = float(depth) * (float(x) - float(xShift)) / Hfl;
 								img3Di[x][1] = float(depth) * (float(y) - float(yShift)) / Vfl;
 								img3Di[x][2] = float(depth);*/
-								img3Di[x][0] = float(depth) * (float(x) - estimator.depth_intrinsic[2]) / estimator.depth_intrinsic[0];
-								img3Di[x][1] = float(depth) * (float(y) - estimator.depth_intrinsic[5]) / estimator.depth_intrinsic[4];
+								img3Di[x][0] = float(depth) * (float(x) - xShift) / Hfl;
+								img3Di[x][1] = float(depth) * (float(y) - yShift) / Vfl;
 								img3Di[x][2] = float(depth);
 							}
 							else {

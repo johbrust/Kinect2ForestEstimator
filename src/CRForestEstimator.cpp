@@ -90,20 +90,20 @@ void CRForestEstimator::loadConfig(const char* filename) {
 	}
 	in.close();
 
-	//load camera intrinsics
-	ifstream is("depth.cal");
-	if (!is){
-		cerr << "depth.cal file not found in the same folder as the depth image! " << endl;
-		exit(-1);
-	}
-	else {
-		for (int i = 0; i < 9; ++i) {
-			is >> depth_intrinsic[i];
-			//cout << "depth_intrinsic[" << i << "]: " << depth_intrinsic[i] << endl;
-		}
-		cout << "Camera Calibration loaded." << endl;
-	}
-	is.close();
+	////load camera intrinsics
+	//ifstream is("depth.cal");
+	//if (!is){
+	//	cerr << "depth.cal file not found in the same folder as the depth image! " << endl;
+	//	exit(-1);
+	//}
+	//else {
+	//	for (int i = 0; i < 9; ++i) {
+	//		is >> depth_intrinsic[i];
+	//		//cout << "depth_intrinsic[" << i << "]: " << depth_intrinsic[i] << endl;
+	//	}
+	//	cout << "Camera Calibration loaded." << endl;
+	//}
+	//is.close();
 }
 
 float CRForestEstimator::rad(float angle) {

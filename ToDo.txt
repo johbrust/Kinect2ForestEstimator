@@ -1,4 +1,3 @@
-- find and fix the inversion problem of the point clouds
 - think of trajectories:
 	- move the robot to (few) defined points and record the depthimages as it moves
 	- preferred: move the robot to many different points and record frames (~50) at every point while the robot stands still

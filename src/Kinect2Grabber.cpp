@@ -575,8 +575,8 @@ namespace mtec {
 								/*img3Di[x][0] = float(depth) * (float(x) - float(xShift)) / Hfl;
 								img3Di[x][1] = float(depth) * (float(y) - float(yShift)) / Vfl;
 								img3Di[x][2] = float(depth);*/
-								img3Di[x][0] = float(depth) * (float(x) - xShift) / Hfl;
-								img3Di[x][1] = float(depth) * (float(y) - yShift) / Vfl;
+								img3Di[x][0] = float(depth) * (float(x) - estimator.depth_intrinsic[2]) / estimator.depth_intrinsic[0];
+								img3Di[x][1] = float(depth) * (float(y) - estimator.depth_intrinsic[5]) / estimator.depth_intrinsic[4];
 								img3Di[x][2] = float(depth);
 							}
 							else {
@@ -612,13 +612,13 @@ namespace mtec {
 					m_faceFound = true;
 					Eigen::Affine3f T_est = estimator.GetTransformation(g_means[0][0], g_means[0][1], g_means[0][2], g_means[0][3], g_means[0][4], g_means[0][5]);
 					m_facePointNormalPtr->at(0).x = T_est(0, 3);
-					m_facePointNormalPtr->at(0).y = T_est(1, 3);
+					m_facePointNormalPtr->at(0).y = (-1.0f)*T_est(1, 3);
 					m_facePointNormalPtr->at(0).z = T_est(2, 3);
 					// get normal (-z direction)
 					Eigen::Vector4f faceDir_est(0.0, 0.0, -100.0, 1.0);
 					faceDir_est = T_est * faceDir_est;
 					m_facePointNormalPtr->at(0).normal_x = faceDir_est(0, 0);
-					m_facePointNormalPtr->at(0).normal_y = faceDir_est(1, 0);
+					m_facePointNormalPtr->at(0).normal_y = (-1.0f)*faceDir_est(1, 0);
 					m_facePointNormalPtr->at(0).normal_z = faceDir_est(2, 0);
 					//std::cout << T_est.matrix() << std::endl;
 					//std::cout << faceDir_est.matrix() << std::endl;
